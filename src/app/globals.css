@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-young-serif), Georgia, serif;
+
+  /* GiftCircle "golden hour" palette: cream paper, warm brown ink,
+     terracotta primary, butter accents, sage success */
+  --color-paper: #faf5ec;
+  --color-card: #ffffff;
+  --color-ink: #3a2e25;
+  --color-ink-soft: #7a6a5c;
+  --color-ink-faint: #a8988a;
+  --color-clay: #b14e2b;
+  --color-clay-deep: #8f3d20;
+  --color-shell: #f7e7d3;
+  --color-sand: #ebdfcc;
+  --color-butter: #f2c879;
+  --color-leaf: #5f7a5a;
+  --color-leaf-tint: #e9efe3;
+  --color-danger: #b3383d;
+  --color-danger-tint: #f8e7e3;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scalloped "deckled stationery" bottom edge for invitation cards: a full
+   mask above the last strip, plus a row of half-circle bumps along the bottom. */
+.ticket-edge {
+  --scallop-h: 10px;
+  --scallop-w: 26px;
+  mask-image: linear-gradient(#000, #000),
+    radial-gradient(
+      circle at 50% 0,
+      #000 calc(var(--scallop-h) - 1px),
+      transparent var(--scallop-h)
+    );
+  mask-size:
+    100% calc(100% - var(--scallop-h)),
+    var(--scallop-w) var(--scallop-h);
+  mask-position: top, bottom;
+  mask-repeat: no-repeat, repeat-x;
+}
+
+/* Soft entrance for the invitation card */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.rise-in-late {
+  animation: rise-in 0.55s cubic-bezier(0.2, 0.7, 0.3, 1) 0.12s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in,
+  .rise-in-late {
+    animation: none;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-clay);
+  outline-offset: 2px;
+}
