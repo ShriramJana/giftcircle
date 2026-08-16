@@ -22,7 +22,11 @@ const NOT_SIGNED_IN: CrudState = {
   message: 'Your session expired. Sign in again.',
 };
 
-const EVENT_FIELD_KEYS = ['title', 'eventType', 'hostName', 'eventDate', 'location', 'message', 'visibilityMode'];
+const EVENT_FIELD_KEYS = [
+  'title', 'eventType', 'hostName', 'eventDate', 'startTime', 'endTime',
+  'location', 'message', 'hostNote', 'background', 'costMode', 'costAmount',
+  'costMemo', 'venmoHandle', 'zelleHandle', 'cashappHandle', 'visibilityMode',
+];
 const GIFT_FIELD_KEYS = ['name', 'description', 'productUrl', 'imageUrl', 'estimatedPrice', 'requestedQuantity', 'isUnlimited'];
 
 function echoValues(formData: FormData, keys: string[]): Record<string, string> {
@@ -40,8 +44,18 @@ function eventInputFromForm(formData: FormData) {
     eventType: formData.get('eventType'),
     hostName: formData.get('hostName'),
     eventDate: formData.get('eventDate'),
+    startTime: formData.get('startTime') ?? '',
+    endTime: formData.get('endTime') ?? '',
     location: formData.get('location'),
     message: formData.get('message') ?? '',
+    hostNote: formData.get('hostNote') ?? '',
+    background: formData.get('background') ?? '',
+    costMode: formData.get('costMode') ?? '',
+    costAmount: formData.get('costAmount') ?? '',
+    costMemo: formData.get('costMemo') ?? '',
+    venmoHandle: formData.get('venmoHandle') ?? '',
+    zelleHandle: formData.get('zelleHandle') ?? '',
+    cashappHandle: formData.get('cashappHandle') ?? '',
     visibilityMode: formData.get('visibilityMode'),
   });
 }
@@ -81,19 +95,19 @@ export async function createEventAction(
     event_type: d.eventType,
     host_name: d.hostName,
     event_date: d.eventDate,
+    start_time: d.startTime,
+    end_time: d.endTime,
     location: d.location,
     message: d.message,
+    host_note: d.hostNote,
+    background: d.background,
+    cost_mode: d.costMode,
+    cost_amount_cents: d.costAmount,
+    cost_memo: d.costMemo,
+    venmo_handle: d.venmoHandle,
+    zelle_handle: d.zelleHandle,
+    cashapp_handle: d.cashappHandle,
     visibility_mode: d.visibilityMode,
-    start_time: null,
-    end_time: null,
-    host_note: null,
-    background: null,
-    cost_mode: null,
-    cost_amount_cents: null,
-    cost_memo: null,
-    venmo_handle: null,
-    zelle_handle: null,
-    cashapp_handle: null,
   };
 
   // Slugs carry a random suffix; retry once on the unlikely collision.
@@ -139,19 +153,19 @@ export async function updateEventAction(
     event_type: d.eventType,
     host_name: d.hostName,
     event_date: d.eventDate,
+    start_time: d.startTime,
+    end_time: d.endTime,
     location: d.location,
     message: d.message,
+    host_note: d.hostNote,
+    background: d.background,
+    cost_mode: d.costMode,
+    cost_amount_cents: d.costAmount,
+    cost_memo: d.costMemo,
+    venmo_handle: d.venmoHandle,
+    zelle_handle: d.zelleHandle,
+    cashapp_handle: d.cashappHandle,
     visibility_mode: d.visibilityMode,
-    start_time: null,
-    end_time: null,
-    host_note: null,
-    background: null,
-    cost_mode: null,
-    cost_amount_cents: null,
-    cost_memo: null,
-    venmo_handle: null,
-    zelle_handle: null,
-    cashapp_handle: null,
   });
   if (!result.ok) {
     return {

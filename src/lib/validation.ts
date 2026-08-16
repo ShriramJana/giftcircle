@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { EVENT_TYPES, VISIBILITY_MODES } from './types';
+import type { CostMode } from './types';
 import { MAX_RESERVATION_QUANTITY } from './registry';
+import { BACKGROUNDS } from './backgrounds';
 
 const trimmed = (max: number, label: string) =>
   z
@@ -8,6 +10,23 @@ const trimmed = (max: number, label: string) =>
     .trim()
     .min(1, `${label} is required`)
     .max(max, `${label} must be ${max} characters or fewer`);
+
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+const optionalTime = z
+  .string()
+  .trim()
+  .default('')
+  .refine((v) => v === '' || HHMM.test(v), 'Pick a valid time')
+  .transform((v) => (v === '' ? null : v));
+
+const optionalText = (max: number, label: string) =>
+  z
+    .string()
+    .trim()
+    .max(max, `${label} must be ${max} characters or fewer`)
+    .default('')
+    .transform((v) => (v === '' ? null : v));
 
 const optionalHttpUrl = z
   .string()
@@ -52,18 +71,65 @@ export const updateReservationSchema = z.object({
   quantity: quantitySchema,
 });
 
-export const eventSchema = z.object({
-  title: trimmed(120, 'Event title'),
-  eventType: z.enum(EVENT_TYPES, { error: 'Choose an event type' }),
-  hostName: trimmed(120, 'Host name'),
-  eventDate: z
-    .string({ error: 'Pick a date' })
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Pick a date')
-    .refine((v) => !Number.isNaN(new Date(`${v}T00:00:00`).getTime()), 'Pick a valid date'),
-  location: trimmed(200, 'Location'),
-  message: z.string().trim().max(2000, 'Message must be 2000 characters or fewer').default(''),
-  visibilityMode: z.enum(VISIBILITY_MODES, { error: 'Choose who can see purchaser names' }),
-});
+export const eventSchema = z
+  .object({
+    title: trimmed(120, 'Event title'),
+    eventType: z.enum(EVENT_TYPES, { error: 'Choose an event type' }),
+    hostName: trimmed(120, 'Host name'),
+    eventDate: z
+      .string({ error: 'Pick a date' })
+      .regex(/^\d{4}-\d{2}-\d{2}$/, 'Pick a date')
+      .refine((v) => !Number.isNaN(new Date(`${v}T00:00:00`).getTime()), 'Pick a valid date'),
+    startTime: optionalTime,
+    endTime: optionalTime,
+    location: trimmed(200, 'Location'),
+    message: z.string().trim().max(2000, 'Message must be 2000 characters or fewer').default(''),
+    hostNote: optionalText(2000, 'Host note'),
+    background: z
+      .string()
+      .trim()
+      .default('')
+      .refine((v) => v === '' || v in BACKGROUNDS, 'Pick one of the listed backgrounds')
+      .transform((v) => (v === '' ? null : v)),
+    costMode: z
+      .string()
+      .trim()
+      .default('')
+      .refine((v) => v === '' || v === 'required' || v === 'suggested', 'Choose how guests chip in')
+      .transform((v) => (v === '' ? null : (v as CostMode))),
+    costAmount: z
+      .string()
+      .trim()
+      .default('')
+      .transform((v) => v.replace(/[$,\s]/g, ''))
+      .refine((v) => v === '' || /^\d{1,5}([.]\d{1,2})?$/.test(v), 'Enter an amount like 20 or 20.50')
+      .transform((v) => (v === '' ? null : Math.round(parseFloat(v) * 100))),
+    costMemo: optionalText(500, 'Memo'),
+    venmoHandle: optionalText(120, 'Venmo username'),
+    zelleHandle: optionalText(120, 'Zelle phone or email'),
+    cashappHandle: optionalText(120, 'Cash App username'),
+    visibilityMode: z.enum(VISIBILITY_MODES, { error: 'Choose who can see purchaser names' }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.endTime && !data.startTime) {
+      ctx.addIssue({ code: 'custom', path: ['endTime'], message: 'Add a start time first' });
+    }
+    if (data.endTime && data.startTime && data.endTime <= data.startTime) {
+      ctx.addIssue({ code: 'custom', path: ['endTime'], message: 'End time must be after the start' });
+    }
+    if (data.costMode) {
+      if (data.costAmount === null || data.costAmount <= 0) {
+        ctx.addIssue({ code: 'custom', path: ['costAmount'], message: 'Enter a per-person amount' });
+      }
+      if (!data.venmoHandle && !data.zelleHandle && !data.cashappHandle) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['venmoHandle'],
+          message: 'Add at least one way to pay',
+        });
+      }
+    }
+  });
 
 export const giftSchema = z
   .object({
