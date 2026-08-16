@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { GiftCard } from '@/components/gift-card';
+import { Reveal } from '@/components/reveal';
 import { SiteHeader } from '@/components/site-header';
 import { QuantityTicks } from '@/components/quantity-ticks';
 import { Eyebrow } from '@/components/ui';
@@ -93,7 +94,7 @@ export default async function LandingPage() {
           </div>
 
           <div aria-hidden className="rise-in-late">
-            <div className="ticket-edge mx-auto max-w-sm rotate-1 bg-card px-8 pb-10 pt-8 text-center shadow-[0_8px_30px_rgba(58,46,37,0.12)]">
+            <div className="ticket-edge mx-auto max-w-sm rotate-1 bg-card transition-transform duration-500 hover:rotate-0 motion-reduce:transition-none px-8 pb-10 pt-8 text-center shadow-[0_8px_30px_rgba(58,46,37,0.12)]">
               <p className="text-[10px] font-bold tracking-[0.2em] uppercase text-clay">
                 Wedding · You&rsquo;re invited
               </p>
@@ -118,7 +119,7 @@ export default async function LandingPage() {
 
         {/* Live registry sample */}
         {sampleGifts.length > 0 && registry ? (
-          <section aria-labelledby="live-title" className="mt-24">
+          <Reveal><section aria-labelledby="live-title" className="mt-24">
             <div className="text-center">
               <Eyebrow>Straight from a real registry</Eyebrow>
               <h2 id="live-title" className="font-display mt-3 text-2xl text-ink sm:text-3xl">
@@ -146,11 +147,11 @@ export default async function LandingPage() {
                 Open the full sample registry
               </Link>
             </p>
-          </section>
+          </section></Reveal>
         ) : null}
 
         {/* Invitation showcase */}
-        <section aria-labelledby="themes-title" className="mt-24">
+        <Reveal><section aria-labelledby="themes-title" className="mt-24">
           <div className="text-center">
             <Eyebrow>One structure, your occasion</Eyebrow>
             <h2 id="themes-title" className="font-display mt-3 text-2xl text-ink sm:text-3xl">
@@ -199,10 +200,10 @@ export default async function LandingPage() {
               />
             </div>
           </div>
-        </section>
+        </section></Reveal>
 
         {/* Surprise mode, shown */}
-        <section aria-labelledby="surprise-title" className="mt-24">
+        <Reveal><section aria-labelledby="surprise-title" className="mt-24">
           <div className="text-center">
             <Eyebrow>Surprise mode</Eyebrow>
             <h2 id="surprise-title" className="font-display mt-3 text-2xl text-ink sm:text-3xl">
@@ -272,10 +273,10 @@ export default async function LandingPage() {
               </p>
             </div>
           </div>
-        </section>
+        </section></Reveal>
 
         {/* How it works */}
-        <section aria-labelledby="how-title" className="mt-24">
+        <Reveal><section aria-labelledby="how-title" className="mt-24">
           <h2 id="how-title" className="font-display text-center text-2xl text-ink">
             How it works
           </h2>
@@ -302,10 +303,10 @@ export default async function LandingPage() {
               </p>
             </div>
           </div>
-        </section>
+        </section></Reveal>
 
         {/* FAQ */}
-        <section aria-labelledby="faq-title" className="mx-auto mt-24 max-w-2xl">
+        <Reveal><section aria-labelledby="faq-title" className="mx-auto mt-24 max-w-2xl">
           <h2 id="faq-title" className="font-display text-center text-2xl text-ink">
             Questions hosts ask
           </h2>
@@ -348,10 +349,10 @@ export default async function LandingPage() {
               </details>
             ))}
           </div>
-        </section>
+        </section></Reveal>
 
         {/* Closing CTA */}
-        <section className="mt-24 text-center">
+        <Reveal><section className="mt-24 text-center">
           <p className="font-display text-2xl text-ink">
             Weddings · birthdays · baby showers · graduations
           </p>
@@ -364,7 +365,7 @@ export default async function LandingPage() {
           >
             Create your event
           </Link>
-        </section>
+        </section></Reveal>
       </main>
       <footer className="border-t border-sand py-8 text-center text-xs text-ink-faint">
         GiftCircle, an MVP for collaborative gift registries.

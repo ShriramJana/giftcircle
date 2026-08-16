@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { signOutAction } from '@/app/(auth)/actions';
 import { getSessionUser } from '@/lib/auth';
+import { Wordmark } from './wordmark';
 
 export async function SiteHeader() {
   const user = await getSessionUser();
@@ -8,8 +9,8 @@ export async function SiteHeader() {
   return (
     <header className="border-b border-sand bg-card/70 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="font-display text-lg text-clay">
-          GiftCircle
+        <Link href="/" aria-label="GiftCircle home" className="transition-opacity hover:opacity-80">
+          <Wordmark />
         </Link>
         <nav aria-label="Main" className="flex items-center gap-1 sm:gap-2">
           {user ? (

@@ -36,7 +36,7 @@ export function QuantityTicks({
     return (
       <div className="space-y-1" role="img" aria-label={label}>
         <div className="h-2 w-full overflow-hidden rounded-full bg-shell">
-          <div className="h-full rounded-full bg-clay" style={{ width: `${pct}%` }} />
+          <div className="h-full rounded-full bg-clay transition-[width] duration-500" style={{ width: `${pct}%` }} />
         </div>
         <p className="text-xs text-ink-soft">{label}</p>
       </div>
@@ -50,7 +50,7 @@ export function QuantityTicks({
           <span
             key={i}
             aria-hidden
-            className={`h-3.5 w-3.5 rounded-[5px] border ${
+            className={`h-3.5 w-3.5 rounded-[5px] border transition-colors duration-500 ${
               i < claimed ? 'border-clay bg-clay' : 'border-sand bg-card'
             }`}
           />

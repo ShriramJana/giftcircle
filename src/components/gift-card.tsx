@@ -60,7 +60,7 @@ export function GiftCard({ gift, slug }: { gift: RegistryGift; slug: string }) {
       : null;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border border-sand bg-card shadow-[0_1px_2px_rgba(58,46,37,0.06)]">
+    <article className="flex flex-col overflow-hidden rounded-2xl border border-sand bg-card shadow-[0_1px_2px_rgba(58,46,37,0.06)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_10px_28px_rgba(58,46,37,0.12)] motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       {gift.image_url ? (
         <div className="relative h-44 w-full bg-shell">
           {/* Remote gift images come from arbitrary hosts, so use a plain img */}
@@ -135,7 +135,7 @@ export function GiftCard({ gift, slug }: { gift: RegistryGift; slug: string }) {
 
         <div className="mt-auto pt-1">
           {state.status === 'success' && managementUrl ? (
-            <div className="space-y-3 rounded-xl bg-leaf-tint p-4" role="status">
+            <div className="rise-in space-y-3 rounded-xl bg-leaf-tint p-4" role="status">
               <p className="text-sm font-semibold text-leaf">{state.message}</p>
               <p className="text-xs leading-relaxed text-ink-soft">
                 Keep this private link. It lets you change or cancel your reservation later,
@@ -162,7 +162,7 @@ export function GiftCard({ gift, slug }: { gift: RegistryGift; slug: string }) {
               Fully claimed
             </p>
           ) : open ? (
-            <form action={formAction} className="space-y-3 rounded-xl bg-paper p-4">
+            <form action={formAction} className="rise-in space-y-3 rounded-xl bg-paper p-4">
               <input type="hidden" name="giftId" value={gift.id} />
               <input type="hidden" name="slug" value={slug} />
               <input type="hidden" name="managementToken" value={token} />

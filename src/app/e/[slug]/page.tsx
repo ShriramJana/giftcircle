@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { GiftCard } from '@/components/gift-card';
+import { Reveal } from '@/components/reveal';
 import { Eyebrow } from '@/components/ui';
 import { getStore } from '@/lib/data';
 import { formatEventDate } from '@/lib/format';
@@ -84,11 +85,13 @@ export default async function EventPage({ params }: Props) {
           </div>
         ) : (
           <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {gifts.map((gift) => (
+            {gifts.map((gift, index) => (
               <li key={gift.id} className="flex">
-                <div className="flex w-full">
-                  <GiftCard gift={gift} slug={event.slug} />
-                </div>
+                <Reveal delay={Math.min(index, 5) * 70} className="flex w-full">
+                  <div className="flex w-full">
+                    <GiftCard gift={gift} slug={event.slug} />
+                  </div>
+                </Reveal>
               </li>
             ))}
           </ul>

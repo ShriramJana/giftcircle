@@ -3,7 +3,7 @@ import type { ComponentProps, ReactNode } from 'react';
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const buttonBase =
-  'inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-[color,background-color,border-color,transform] duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50';
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary: 'bg-clay text-card hover:bg-clay-deep',
