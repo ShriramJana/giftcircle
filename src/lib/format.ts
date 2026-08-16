@@ -47,3 +47,35 @@ export function generateSlug(title: string): string {
   const base = slugify(title) || 'event';
   return `${base}-${suffix}`;
 }
+
+/** "5:30 PM" from "17:30" (also accepts Postgres's "17:30:00"). */
+export function formatTime(time: string): string {
+  const match = time.match(/^(\d{2}):(\d{2})/);
+  if (!match) return time;
+  const hours24 = parseInt(match[1], 10);
+  if (hours24 > 23) return time;
+  const meridiem = hours24 >= 12 ? 'PM' : 'AM';
+  const hours = hours24 % 12 || 12;
+  return `${hours}:${match[2]} ${meridiem}`;
+}
+
+/**
+ * "Saturday, November 14, 2026, 5:00 to 9:00 PM". Date only when there is
+ * no start time; an end time without a start is ignored (cannot happen via
+ * validation, but Postgres data is the source of truth).
+ */
+export function formatEventDateTime(
+  isoDate: string,
+  startTime?: string | null,
+  endTime?: string | null,
+): string {
+  const datePart = formatEventDate(isoDate);
+  if (!startTime) return datePart;
+  const start = formatTime(startTime);
+  if (!endTime) return `${datePart}, ${start}`;
+  const end = formatTime(endTime);
+  const [startClock, startMeridiem] = start.split(' ');
+  const [, endMeridiem] = end.split(' ');
+  const range = startMeridiem === endMeridiem ? `${startClock} to ${end}` : `${start} to ${end}`;
+  return `${datePart}, ${range}`;
+}
