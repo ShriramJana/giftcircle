@@ -1,16 +1,23 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { SignInForm } from '@/components/auth-forms';
+import { AuthDivider, GoogleSignInButton } from '@/components/google-signin-button';
 import { SiteHeader } from '@/components/site-header';
-import { Eyebrow } from '@/components/ui';
+import { Eyebrow, FormMessage } from '@/components/ui';
 import { getSessionUser } from '@/lib/auth';
 import { dataMode } from '@/lib/data';
 import { DEMO_HOST } from '@/lib/data/memory-store';
 
 export const metadata: Metadata = { title: 'Sign in' };
 
-export default async function LoginPage() {
+interface Props {
+  searchParams: Promise<{ error?: string }>;
+}
+
+export default async function LoginPage({ searchParams }: Props) {
   if (await getSessionUser()) redirect('/dashboard');
+  const { error } = await searchParams;
+  const supabaseMode = dataMode() === 'supabase';
 
   return (
     <>
@@ -22,9 +29,23 @@ export default async function LoginPage() {
           <p className="mt-1 mb-6 text-sm text-ink-soft">
             Sign in to manage your events and gift lists.
           </p>
+          {error === 'oauth' ? (
+            <div className="mb-4">
+              <FormMessage
+                status="error"
+                message="Google sign-in didn't complete. Try again, or use your email and password."
+              />
+            </div>
+          ) : null}
+          {supabaseMode ? (
+            <div className="mb-5 space-y-5">
+              <GoogleSignInButton />
+              <AuthDivider label="or sign in with email" />
+            </div>
+          ) : null}
           <SignInForm />
         </div>
-        {dataMode() === 'memory' ? (
+        {!supabaseMode ? (
           <p className="mt-4 rounded-xl bg-shell/60 px-4 py-3 text-center text-xs leading-relaxed text-ink-soft">
             Running without Supabase. Use the demo host:{' '}
             <span className="font-mono font-semibold">{DEMO_HOST.email}</span> /{' '}

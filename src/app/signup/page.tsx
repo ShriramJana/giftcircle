@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { SignUpForm } from '@/components/auth-forms';
+import { AuthDivider, GoogleSignInButton } from '@/components/google-signin-button';
 import { SiteHeader } from '@/components/site-header';
 import { Eyebrow } from '@/components/ui';
 import { getSessionUser } from '@/lib/auth';
+import { dataMode } from '@/lib/data';
 
 export const metadata: Metadata = { title: 'Create an account' };
 
@@ -21,6 +23,12 @@ export default async function SignUpPage() {
             Create an account to send invitations with a built-in gift registry. Your guests will
             never need one.
           </p>
+          {dataMode() === 'supabase' ? (
+            <div className="mb-5 space-y-5">
+              <GoogleSignInButton />
+              <AuthDivider label="or create with email" />
+            </div>
+          ) : null}
           <SignUpForm />
         </div>
       </main>

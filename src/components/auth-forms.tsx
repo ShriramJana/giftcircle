@@ -2,10 +2,20 @@
 
 import Link from 'next/link';
 import { useActionState } from 'react';
-import { signInAction, signUpAction, type AuthFormState } from '@/app/(auth)/actions';
+import {
+  requestPasswordResetAction,
+  signInAction,
+  signUpAction,
+  updatePasswordAction,
+  type AuthFormState,
+} from '@/app/(auth)/actions';
 import { Button, Field, FormMessage, Input } from './ui';
 
 const IDLE: AuthFormState = { status: 'idle' };
+
+function messageStatus(state: AuthFormState) {
+  return state.status === 'error' ? 'error' : state.status === 'info' ? 'success' : null;
+}
 
 export function SignInForm() {
   const [state, action, pending] = useActionState(signInAction, IDLE);
@@ -28,10 +38,15 @@ export function SignInForm() {
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? 'Signing in…' : 'Sign in'}
       </Button>
+      <p className="text-center text-sm">
+        <Link href="/forgot-password" className="font-semibold text-clay hover:underline">
+          Forgot password?
+        </Link>
+      </p>
       <p className="text-center text-sm text-ink-soft">
-        New here?{' '}
+        Don&rsquo;t have an account?{' '}
         <Link href="/signup" className="font-semibold text-clay hover:underline">
-          Create a host account
+          Create one
         </Link>
       </p>
     </form>
@@ -64,10 +79,7 @@ export function SignUpForm() {
           required
         />
       </Field>
-      <FormMessage
-        status={state.status === 'error' ? 'error' : state.status === 'info' ? 'success' : null}
-        message={state.message}
-      />
+      <FormMessage status={messageStatus(state)} message={state.message} />
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? 'Creating account…' : 'Create account'}
       </Button>
@@ -77,6 +89,51 @@ export function SignUpForm() {
           Sign in
         </Link>
       </p>
+    </form>
+  );
+}
+
+export function ForgotPasswordForm() {
+  const [state, action, pending] = useActionState(requestPasswordResetAction, IDLE);
+
+  return (
+    <form action={action} className="space-y-4">
+      <Field label="Email" htmlFor="forgot-email">
+        <Input id="forgot-email" name="email" type="email" autoComplete="email" required />
+      </Field>
+      <FormMessage status={messageStatus(state)} message={state.message} />
+      <Button type="submit" className="w-full" disabled={pending}>
+        {pending ? 'Sending…' : 'Send reset link'}
+      </Button>
+      <p className="text-center text-sm text-ink-soft">
+        Remembered it?{' '}
+        <Link href="/login" className="font-semibold text-clay hover:underline">
+          Sign in
+        </Link>
+      </p>
+    </form>
+  );
+}
+
+export function ResetPasswordForm() {
+  const [state, action, pending] = useActionState(updatePasswordAction, IDLE);
+
+  return (
+    <form action={action} className="space-y-4">
+      <Field label="New password" htmlFor="reset-password" hint="At least 8 characters.">
+        <Input
+          id="reset-password"
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          minLength={8}
+          required
+        />
+      </Field>
+      <FormMessage status={messageStatus(state)} message={state.message} />
+      <Button type="submit" className="w-full" disabled={pending}>
+        {pending ? 'Saving…' : 'Set new password'}
+      </Button>
     </form>
   );
 }

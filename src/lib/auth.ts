@@ -35,10 +35,16 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
+  const meta = user.user_metadata ?? {};
   return {
     id: user.id,
     email: user.email ?? '',
-    displayName: (user.user_metadata?.display_name as string | undefined) ?? user.email ?? 'Host',
+    displayName:
+      (meta.display_name as string | undefined) ??
+      (meta.full_name as string | undefined) ??
+      (meta.name as string | undefined) ??
+      user.email ??
+      'Host',
   };
 }
 
