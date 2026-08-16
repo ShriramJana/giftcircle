@@ -23,6 +23,9 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
 export const VISIBILITY_MODES = ['public', 'surprise_host'] as const;
 export type VisibilityMode = (typeof VISIBILITY_MODES)[number];
 
+export const COST_MODES = ['required', 'suggested'] as const;
+export type CostMode = (typeof COST_MODES)[number];
+
 export interface PublicEvent {
   id: string;
   slug: string;
@@ -31,8 +34,20 @@ export interface PublicEvent {
   host_name: string;
   /** ISO date, YYYY-MM-DD */
   event_date: string;
+  /** "HH:MM" 24h ("HH:MM:SS" from Postgres); null = date-only event */
+  start_time: string | null;
+  end_time: string | null;
   location: string;
   message: string;
+  host_note: string | null;
+  /** Key into BACKGROUNDS (src/lib/backgrounds.ts); null = default paper */
+  background: string | null;
+  cost_mode: CostMode | null;
+  cost_amount_cents: number | null;
+  cost_memo: string | null;
+  venmo_handle: string | null;
+  zelle_handle: string | null;
+  cashapp_handle: string | null;
   visibility_mode: VisibilityMode;
 }
 

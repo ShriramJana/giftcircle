@@ -8,6 +8,7 @@ import type {
   StoreResult,
   EventType,
   VisibilityMode,
+  CostMode,
 } from '../types';
 
 export interface EventInput {
@@ -15,8 +16,18 @@ export interface EventInput {
   event_type: EventType;
   host_name: string;
   event_date: string;
+  start_time: string | null;
+  end_time: string | null;
   location: string;
   message: string;
+  host_note: string | null;
+  background: string | null;
+  cost_mode: CostMode | null;
+  cost_amount_cents: number | null;
+  cost_memo: string | null;
+  venmo_handle: string | null;
+  zelle_handle: string | null;
+  cashapp_handle: string | null;
   visibility_mode: VisibilityMode;
 }
 

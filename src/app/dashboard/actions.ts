@@ -84,6 +84,16 @@ export async function createEventAction(
     location: d.location,
     message: d.message,
     visibility_mode: d.visibilityMode,
+    start_time: null,
+    end_time: null,
+    host_note: null,
+    background: null,
+    cost_mode: null,
+    cost_amount_cents: null,
+    cost_memo: null,
+    venmo_handle: null,
+    zelle_handle: null,
+    cashapp_handle: null,
   };
 
   // Slugs carry a random suffix; retry once on the unlikely collision.
@@ -132,6 +142,16 @@ export async function updateEventAction(
     location: d.location,
     message: d.message,
     visibility_mode: d.visibilityMode,
+    start_time: null,
+    end_time: null,
+    host_note: null,
+    background: null,
+    cost_mode: null,
+    cost_amount_cents: null,
+    cost_memo: null,
+    venmo_handle: null,
+    zelle_handle: null,
+    cashapp_handle: null,
   });
   if (!result.ok) {
     return {

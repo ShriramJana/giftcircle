@@ -30,6 +30,16 @@ async function setup(gift: Partial<GiftInput> = {}) {
     location: 'Somewhere',
     message: '',
     visibility_mode: 'public',
+    start_time: null,
+    end_time: null,
+    host_note: null,
+    background: null,
+    cost_mode: null,
+    cost_amount_cents: null,
+    cost_memo: null,
+    venmo_handle: null,
+    zelle_handle: null,
+    cashapp_handle: null,
   });
   if (!event.ok) throw new Error('event setup failed');
   const created = await store.createGift(HOST, event.data.id, { ...baseGift, ...gift });
@@ -210,6 +220,16 @@ describe('host masking through the store', () => {
       location: 'Somewhere',
       message: '',
       visibility_mode: 'surprise_host',
+      start_time: null,
+      end_time: null,
+      host_note: null,
+      background: null,
+      cost_mode: null,
+      cost_amount_cents: null,
+      cost_memo: null,
+      venmo_handle: null,
+      zelle_handle: null,
+      cashapp_handle: null,
     });
     if (!event.ok) throw new Error('setup failed');
     const gift = await store.createGift(HOST, event.data.id, baseGift);
