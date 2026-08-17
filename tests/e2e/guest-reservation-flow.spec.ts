@@ -12,6 +12,9 @@ test('guest can view an event, reserve a gift, and manage the reservation', asyn
   await expect(page.getByText('Hollis Farm, Petaluma, California')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'The gift list' })).toBeVisible();
 
+  // Canvas fields render on the invitation.
+  await expect(page.getByText('5:00 to 9:00 PM', { exact: false })).toBeVisible();
+
   // Purchaser names are visible to guests (public mode).
   await expect(page.getByText('Amara Osei')).toBeVisible();
 
