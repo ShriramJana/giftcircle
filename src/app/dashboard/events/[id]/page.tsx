@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { deleteEventAction, deleteGiftAction } from '@/app/dashboard/actions';
 import { ConfirmButton } from '@/components/confirm-button';
-import { EventForm } from '@/components/event-form';
 import { GiftForm } from '@/components/gift-form';
 import { QuantityTicks } from '@/components/quantity-ticks';
 import { ShareLink } from '@/components/share-link';
@@ -179,14 +178,20 @@ export default async function ManageEventPage({ params }: Props) {
           <h2 id="settings-title" className="font-display text-2xl text-ink">
             Event settings
           </h2>
-          <details className="mt-4 rounded-2xl border border-sand bg-card p-6">
-            <summary className="cursor-pointer text-sm font-semibold text-clay hover:underline">
-              Edit invitation details
-            </summary>
-            <div className="mt-4 border-t border-sand pt-4">
-              <EventForm event={event} />
+          <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-sand bg-card p-6">
+            <div>
+              <h3 className="text-sm font-semibold text-ink">Invitation design</h3>
+              <p className="mt-1 text-sm text-ink-soft">
+                Edit the title, date, location, backdrop, and extra sections in the invitation editor.
+              </p>
             </div>
-          </details>
+            <Link
+              href={`/dashboard/events/${event.id}/design`}
+              className="shrink-0 rounded-full border border-clay/30 bg-card px-5 py-2.5 text-sm font-semibold text-clay hover:border-clay/60 hover:bg-shell/40"
+            >
+              Edit invitation
+            </Link>
+          </div>
           <div className="mt-4 rounded-2xl border border-danger/25 bg-card p-6">
             <h3 className="text-sm font-semibold text-danger">Danger zone</h3>
             <p className="mt-1 text-sm text-ink-soft">
