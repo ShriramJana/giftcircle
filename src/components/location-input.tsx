@@ -14,11 +14,13 @@ export function LocationInput({
   name,
   defaultValue,
   required,
+  onValueChange,
 }: {
   id: string;
-  name: string;
+  name?: string;
   defaultValue?: string;
   required?: boolean;
+  onValueChange?: (value: string) => void;
 }) {
   const [value, setValue] = useState(defaultValue ?? '');
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
@@ -30,6 +32,11 @@ export function LocationInput({
   const rootRef = useRef<HTMLDivElement>(null);
   const listId = `${id}-listbox`;
 
+  const rows: Array<{ kind: 'free' } | { kind: 'suggestion'; s: LocationSuggestion }> = [
+    ...(value.trim() ? [{ kind: 'free' as const }] : []),
+    ...suggestions.map((s) => ({ kind: 'suggestion' as const, s })),
+  ];
+
   const cancelPendingSearch = () => {
     if (timerRef.current) clearTimeout(timerRef.current);
     abortRef.current?.abort();
@@ -38,6 +45,7 @@ export function LocationInput({
   // Debounced search, driven by the change handler rather than an effect.
   const onChange = (next: string) => {
     setValue(next);
+    onValueChange?.(next);
     cancelPendingSearch();
     const q = next.trim();
     if (q.length < 3) {
@@ -46,6 +54,7 @@ export function LocationInput({
       setSearching(false);
       return;
     }
+    setOpen(true);
     setSearching(true);
     timerRef.current = setTimeout(async () => {
       const controller = new AbortController();
@@ -81,6 +90,7 @@ export function LocationInput({
   const pick = (label: string) => {
     cancelPendingSearch();
     setValue(label);
+    onValueChange?.(label);
     setSuggestions([]);
     setOpen(false);
     setActive(-1);
@@ -88,16 +98,21 @@ export function LocationInput({
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!open || suggestions.length === 0) return;
+    if (!open || rows.length === 0) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setActive((i) => (i + 1) % suggestions.length);
+      setActive((i) => (i + 1) % rows.length);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setActive((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
+      setActive((i) => (i <= 0 ? rows.length - 1 : i - 1));
     } else if (e.key === 'Enter' && active >= 0) {
       e.preventDefault();
-      pick(suggestions[active].label);
+      const row = rows[active];
+      if (row.kind === 'free') {
+        pick(value.trim());
+      } else {
+        pick(row.s.label);
+      }
     } else if (e.key === 'Escape') {
       setOpen(false);
     }
@@ -111,7 +126,7 @@ export function LocationInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
-        onFocus={() => suggestions.length > 0 && setOpen(true)}
+        onFocus={() => rows.length > 0 && setOpen(true)}
         placeholder="Start typing a venue, town, or address"
         autoComplete="off"
         required={required}
@@ -126,30 +141,50 @@ export function LocationInput({
           Searching…
         </span>
       ) : null}
-      {open && suggestions.length > 0 ? (
+      {open && rows.length > 0 ? (
         <ul
           id={listId}
           role="listbox"
           aria-label="Location suggestions"
           className="absolute z-10 mt-1.5 w-full overflow-hidden rounded-xl border border-sand bg-card py-1 shadow-[0_8px_24px_rgba(58,46,37,0.14)]"
         >
-          {suggestions.map((s, i) => (
-            <li key={s.label} role="presentation">
-              <button
-                type="button"
-                id={`${id}-option-${i}`}
-                role="option"
-                aria-selected={i === active}
-                className={`w-full px-3.5 py-2 text-left text-sm text-ink hover:bg-shell/60 ${
-                  i === active ? 'bg-shell/60' : ''
-                }`}
-                onMouseEnter={() => setActive(i)}
-                onClick={() => pick(s.label)}
-              >
-                {s.label}
-              </button>
-            </li>
-          ))}
+          {rows.map((row, i) =>
+            row.kind === 'free' ? (
+              <li key="__free" role="presentation" className="border-b border-sand">
+                <button
+                  type="button"
+                  id={`${id}-option-${i}`}
+                  role="option"
+                  aria-selected={i === active}
+                  className={`flex w-full items-center gap-2 px-3.5 py-2.5 text-left text-sm font-semibold text-ink hover:bg-shell/60 ${i === active ? 'bg-shell/60' : ''}`}
+                  onMouseEnter={() => setActive(i)}
+                  onClick={() => pick(value.trim())}
+                >
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden>
+                    <path d="M11.3 1.7l3 3L5 14H2v-3l9.3-9.3z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+                  </svg>
+                  Use &ldquo;{value.trim()}&rdquo;
+                </button>
+              </li>
+            ) : (
+              <li key={row.s.label} role="presentation">
+                <button
+                  type="button"
+                  id={`${id}-option-${i}`}
+                  role="option"
+                  aria-selected={i === active}
+                  className={`w-full px-3.5 py-2 text-left hover:bg-shell/60 ${i === active ? 'bg-shell/60' : ''}`}
+                  onMouseEnter={() => setActive(i)}
+                  onClick={() => pick(row.s.label)}
+                >
+                  <span className="block text-sm font-semibold text-ink">{row.s.main}</span>
+                  {row.s.secondary ? (
+                    <span className="block text-xs text-ink-soft">{row.s.secondary}</span>
+                  ) : null}
+                </button>
+              </li>
+            ),
+          )}
         </ul>
       ) : null}
     </div>

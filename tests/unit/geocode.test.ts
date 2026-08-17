@@ -132,3 +132,42 @@ describe('US address formatting', () => {
     ).toBe('Eiffel Tower, Paris, Île-de-France, France');
   });
 });
+
+describe('two-line suggestions', () => {
+  it('splits main and secondary', () => {
+    const [s] = toSuggestions([
+      {
+        properties: {
+          housenumber: '1912', street: 'Pine Street', city: 'Philadelphia',
+          state: 'Pennsylvania', postcode: '19146', countrycode: 'US', country: 'United States',
+        },
+      },
+    ]);
+    expect(s.main).toBe('1912 Pine Street');
+    expect(s.secondary).toBe('Philadelphia, Pennsylvania 19146');
+    expect(s.label).toBe('1912 Pine Street, Philadelphia, Pennsylvania 19146');
+  });
+
+  it('keeps the typed house number in main', () => {
+    const [s] = toSuggestions(
+      [
+        {
+          properties: {
+            street: 'Chapel Hill Lane', city: 'Frisco', state: 'Texas',
+            postcode: '75033', countrycode: 'US', osm_key: 'highway', name: 'Chapel Hill Lane',
+          },
+        },
+      ],
+      5,
+      '11417',
+    );
+    expect(s.main).toBe('11417 Chapel Hill Lane');
+    expect(s.secondary).toBe('Frisco, Texas 75033');
+  });
+
+  it('handles single-part results', () => {
+    const [s] = toSuggestions([{ properties: { name: 'Central Park', countrycode: 'US' } }]);
+    expect(s.main).toBe('Central Park');
+    expect(s.secondary).toBe('');
+  });
+});
