@@ -17,7 +17,7 @@ test('host can sign in, see masked reservations, and manage gifts', async ({ pag
 
   // 3. Create an event in the canvas editor.
   await page.getByRole('link', { name: '+ New event' }).click();
-  await page.getByPlaceholder('Add a title *').fill('Game night at ours');
+  await page.getByLabel('Event title').fill('Game night at ours');
   await page.getByRole('button', { name: 'Pick a date & time' }).click();
   await expect(page.getByRole('heading', { name: 'Date and time' })).toBeVisible();
   await page.getByRole('button', { name: 'Next month' }).click();
@@ -28,7 +28,7 @@ test('host can sign in, see masked reservations, and manage gifts', async ({ pag
   await page.getByPlaceholder('Start typing a venue, town, or address').fill('Our living room, Oakland');
   await page.getByRole('option', { name: 'Use “Our living room, Oakland”' }).click();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await page.getByPlaceholder('you *').fill('Sam');
+  await page.getByLabel('Host name').fill('Sam');
   await page.getByRole('button', { name: 'Create event' }).click();
   await expect(page.getByRole('heading', { name: 'Game night at ours' })).toBeVisible();
   await page.goto('/dashboard');

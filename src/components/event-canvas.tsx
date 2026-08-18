@@ -1,6 +1,13 @@
 'use client';
 
-import { useMemo, useState, useTransition, useActionState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  useTransition,
+  useActionState,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import { createEventAction, updateEventAction, type CrudState } from '@/app/dashboard/actions';
 import { backgroundOf } from '@/lib/backgrounds';
@@ -15,6 +22,57 @@ import { ShareCostsModal, EMPTY_COSTS, type CostsDraft } from './share-costs-mod
 import { Button, FormMessage } from './ui';
 
 const IDLE: CrudState = { status: 'idle' };
+
+const TITLE_IDEAS = [
+  'Maya and Jordan tie the knot',
+  'Brunch for the baby',
+  'Leo turns thirty',
+  'Priya walks the stage',
+  'Game night at ours',
+];
+
+function usePrefersReducedMotion(): boolean {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      mq.addEventListener('change', onStoreChange);
+      return () => mq.removeEventListener('change', onStoreChange);
+    },
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    () => false,
+  );
+}
+
+/** Cycles through example phrases, typing each out and deleting it again. */
+function useTypewriter(phrases: string[], active: boolean): string {
+  const [state, setState] = useState({ phrase: 0, length: 0, deleting: false });
+  const reduced = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (!active || reduced) return;
+    const full = phrases[state.phrase];
+    const paused = !state.deleting && state.length === full.length;
+    const delay = paused ? 1800 : state.deleting ? 40 : 80;
+    const timer = setTimeout(() => {
+      setState((s) => {
+        const current = phrases[s.phrase];
+        if (s.deleting) {
+          if (s.length === 0) {
+            return { phrase: (s.phrase + 1) % phrases.length, length: 1, deleting: false };
+          }
+          return { ...s, length: s.length - 1 };
+        }
+        if (s.length === current.length) return { ...s, deleting: true };
+        return { ...s, length: s.length + 1 };
+      });
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [active, reduced, state, phrases]);
+
+  if (!active) return '';
+  if (reduced) return 'Add a title';
+  return phrases[state.phrase].slice(0, state.length);
+}
 
 interface EventDraft {
   title: string;
@@ -99,6 +157,7 @@ export function EventCanvas({ event }: { event?: HostEvent }) {
   const dateError = err.eventDate ?? err.startTime ?? err.endTime;
   const costsError = err.costMode ?? err.costAmount ?? err.venmoHandle ?? err.zelleHandle ?? err.cashappHandle;
   const bg = backgroundOf(draft.background);
+  const titlePlaceholder = useTypewriter(TITLE_IDEAS, !draft.title);
 
   const set = <K extends keyof EventDraft>(key: K, v: EventDraft[K]) =>
     setDraft((d) => ({ ...d, [key]: v }));
@@ -165,26 +224,45 @@ export function EventCanvas({ event }: { event?: HostEvent }) {
           slots={{
             eyebrow: (
               <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-[0.18em] text-clay">
-                <select
-                  aria-label="Event type"
-                  value={draft.eventType}
-                  onChange={(e) => set('eventType', e.target.value as EventDraft['eventType'])}
-                  className="cursor-pointer appearance-none rounded-md bg-transparent font-bold uppercase tracking-[0.18em] text-clay hover:bg-shell/60 focus:outline-none focus:ring-2 focus:ring-clay/25"
-                >
-                  {EVENT_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {EVENT_TYPE_LABELS[t]}
-                    </option>
-                  ))}
-                </select>
+                <span className="relative inline-flex items-center">
+                  <select
+                    aria-label="Event type"
+                    value={draft.eventType}
+                    onChange={(e) => set('eventType', e.target.value as EventDraft['eventType'])}
+                    className="cursor-pointer appearance-none rounded-full border border-clay/30 bg-transparent py-1 pl-3 pr-7 font-bold uppercase tracking-[0.18em] text-clay transition-colors hover:border-clay/60 hover:bg-shell/60 focus:outline-none focus:ring-2 focus:ring-clay/25"
+                  >
+                    {EVENT_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {EVENT_TYPE_LABELS[t]}
+                      </option>
+                    ))}
+                  </select>
+                  <svg
+                    aria-hidden
+                    className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"
+                    width="10"
+                    height="10"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M3.5 6l4.5 4.5L12.5 6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </span>
                 · You&rsquo;re invited
               </span>
             ),
             title: (
               <EditableText
+                label="Event title"
                 value={draft.title}
                 onChange={(v) => set('title', v)}
-                placeholder="Add a title *"
+                placeholder={titlePlaceholder}
                 error={err.title}
                 className="font-display mt-4 w-full bg-transparent text-center text-3xl leading-tight text-ink placeholder:text-ink-faint focus:outline-none sm:text-4xl"
               />
@@ -193,9 +271,10 @@ export function EventCanvas({ event }: { event?: HostEvent }) {
               <div className="mt-3 flex items-center justify-center gap-1 text-sm font-semibold tracking-wide text-clay">
                 <span>Hosted by</span>
                 <EditableText
+                  label="Host name"
                   value={draft.hostName}
                   onChange={(v) => set('hostName', v)}
-                  placeholder="you *"
+                  placeholder="you"
                   error={err.hostName}
                   className="bg-transparent text-center font-semibold tracking-wide text-clay placeholder:text-clay/50 focus:outline-none"
                 />
@@ -361,12 +440,14 @@ export function EventCanvas({ event }: { event?: HostEvent }) {
 }
 
 function EditableText({
+  label,
   value,
   onChange,
   placeholder,
   error,
   className,
 }: {
+  label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder: string;
@@ -377,6 +458,7 @@ function EditableText({
     <span className="block">
       <input
         type="text"
+        aria-label={label}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
